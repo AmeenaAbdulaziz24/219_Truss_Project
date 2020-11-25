@@ -1,0 +1,95 @@
+% FEM Sample Truss
+
+% Clear Command Window and Workspace
+clear all, clc;
+
+% Knowns
+P = 1; % Force acting on the beam, this will change often 
+E = 1; % Modulus of Elasticity
+A = 1; % Cross Section of the Truss (Rod) -- this is constant based on the 
+%geometry of %the single trusses used (should all be constant cross sections)
+L = [12; 6*sqrt(3); 6]; %L array is hand calculated befrore simulation.  
+% geometry of the truss
+theata = [0; 150; 60]; %theata array is hand calculated befrore simulation.
+
+% K coeffients, from simplifying Hooke's law -- .* is an element-wise
+% multiplication, this produces as matrix k that is 3 elements (the size of
+% L)
+k = E.*A./L;
+
+% Generate K Matricies for each truss
+% General K matrix
+C = cosd(theata);
+S = sind(theata);
+CS = C.*S; %".*" is a known function in matlab which multiplies matrix C and S element by element and returns the result in CS
+
+% Calculating the stiffness matrix for member 1 (6x6 matrix -- why?) 
+% all joints have 2 degrees of freedom of each node, and we have 3 joints so we have 6
+% displacements and 6 internal forces 
+% We fill out only four of the 6 because this is just one rod, which has
+% four forces acting on it, when we add them all up, we need space for the
+% other additions
+% but why do the other rods fill up the other spaces and not the same ones?
+k1 = k(1) * [C(1)^2, CS(1), -C(1)^2, -CS(1), 0, 0;
+             CS(1), S(1)^2, -CS(1), -S(1)^2, 0, 0;
+             -C(1)^2, -CS(1), C(1)^2, CS(1), 0, 0;
+             -CS(1), -S(1)^2, CS(1), S(1)^2, 0, 0;
+             0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0];
+
+% Calculating the stiffness matrix for member 2
+k2 = k(2) * [0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0;
+             0, 0, C(2)^2, CS(2), -C(2)^2, -CS(2);
+             0, 0, CS(2), S(2)^2, -CS(2), -S(2)^2;
+             0, 0, -C(2)^2, -CS(2), C(2)^2, CS(2);
+             0, 0, -CS(2), -S(2)^2, CS(2), S(2)^2];
+             
+% Calculating the stiffness matrix for member 3
+k3 = k(3) * [C(3)^2, CS(3), 0, 0, -C(3)^2, -CS(3);
+             CS(3), S(3)^2, 0, 0, -CS(3), -S(3)^2;
+             0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0;
+             -C(3)^2, -CS(3), 0, 0, C(3)^2, CS(3);
+             -CS(3), -S(3)^2, 0, 0, CS(3), S(3)^2];
+
+%assembling the global stiffness matrix (of all the memebers)
+K = k1 + k2 + k3;
+
+% Solve for unknown displacements (u2x, u3x, u3y) -- why these components (u = K/F)
+u = [K(3,3), K(3,5:6); K(5,3), K(5,5:6); K(6,3), K(6,5:6)] \ [0; P; 0];
+
+% Create entire displacemnet matrix U (u1x = u1y = u2y = 0)
+U = [0; 0; u(1); 0; u(2); u(3)];
+
+% Solve reation forces -- matricies
+F = K * U;
+
+% Solve member forces
+fe1 = k(1) * ((U(3)-U(1))*C(1) + (U(4)-U(2))*S(1));
+fe2 = k(2) * ((U(5)-U(3))*C(2) + (U(6)-U(4))*S(2));
+fe3 = k(3) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+
+Fe = [fe1;fe2;fe3];
+
+% Format and print results
+fprintf('Nodal Displacements:\n');
+j = 1;
+for i = 1:2:length(U)
+    fprintf('u%ix = %.3f P/EA\n', j, U(i));
+    fprintf('u%iy = %.3f P/EA\n', j, U(i+1));
+    j = j+1;
+end
+
+fprintf('\nNodal Forces:\n');
+j = 1;
+for i = 1:2:length(F)
+    fprintf('f%ix = %.3f P\n', j, F(i));
+    fprintf('f%iy = %.3f P\n', j, F(i+1));
+    j = j+1;
+end
+
+fprintf('\nMember Forces:\n');
+for i = 1:length(Fe)
+    fprintf('f(%i) = %.3f P\n', i, Fe(i));
+end
