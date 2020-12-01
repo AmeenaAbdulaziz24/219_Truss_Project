@@ -1,0 +1,110 @@
+%dummy lengths/internal forces vectors (members 1-4)
+L = [0.05, 0.06, 0.0781, 0.08];
+%Fe = [9.81, 58.86, -15.32, 47.09];
+Fe = [1900, 90, -40, -200];
+
+%material properties
+N_m = 65.163*10^6;  %normal strength of members
+S_m = 4.2*10^6;     %shear strength of members
+N_p = 1139*10^6;    %normal strength of pins
+S_p = 54*10^6;      %shear strength of pins
+E = 10.932*10^9;
+
+%material dimensions
+t = 0.005875;  	  %thickness
+w = 0.01524;   	  %width
+d = 0.0047625; 	  %pin diameter
+b = 0.005334;     %distance from hole edge to member edge
+A = t*w;          %area
+I = (1/12)*t*w^3; %moment of inertia
+
+%max tension
+T_max = max(Fe);
+%max compression and index of max compression
+[C_max,I_c] = min(Fe);
+L_c = L(I_c); %length of member with max compression
+
+%max force
+P_max = max(abs(Fe));
+
+%print which members failed from yielding stress
+if (yielding(T_max, t, w, d, N_m))
+    fprintf('Yielding failure:\n');
+    for n = 1:4
+        if(yielding(Fe(n), t, w, d, N_m))
+            fprintf('Member %i\n', n);
+        end
+    end
+end
+
+%print which members failed from bearing stress
+%since basswood has lower normal strength than pins, members will fail
+%first
+if (bearing(P_max, t, d, N_m))
+    fprintf('Bearing failure:\n');
+    for n = 1:4
+        if(bearing(Fe(n), t, d, N_m))
+            fprintf('Member %i\n', n);
+        end
+    end
+end
+
+%print which members failed from tear out
+if (tearout(T_max, t, b, N_m))
+    fprintf('Tear out failure:\n');
+    for n = 1:4
+        if((Fe(n) > 0) && tearout(Fe(n), t, b, N_m))
+            fprintf('Member %i\n', n);
+        end
+    end
+end
+
+%print which members failed from buckling
+if (buckling(T_max, E, I, L_c))
+    fprintf('Buckling failure:\n');
+    for n = 1:4
+        if((Fe(n) < 0) && buckling(Fe(n), E, I, L(n)))
+            fprintf('Member %i\n', n);
+        end
+    end
+end
+
+%returns true if failure from yielding stress
+function failure = yielding(F, t, w, d, N_m)
+	N = F/(t*(w-d));
+	if (abs(N) > N_m)
+		failure = 1;
+	else
+		failure = 0;
+    end
+end
+
+%returns true if failure from bearing stress
+function failure = bearing(F, t, d, N_m)
+	N = F/(t*d);
+	if (N > N_m)
+		failure = 1;
+	else
+		failure = 0;
+    end
+end
+
+%returns true is failure from tearout
+function failure = tearout(F, t, b, N_m)
+	N = F/(2*b*t);
+	if (N > N_m)
+		failure = 1;
+	else
+		failure = 0;
+    end
+end
+
+%returns true if failure from buckling
+function failure = buckling(F, E, I, L)
+    P_cr = ((pi^2)*E*I)/(L^2);
+	if (P_cr < abs(F))
+		failure = 1;
+	else
+		failure = 0;
+    end
+end
