@@ -406,9 +406,12 @@ k17 = k(17) *[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
 %assembling the global stiffness matrix (of all the memebers)
 K = k1 + k2 + k3 + k4 + k5 + k6 + k7 + k8 + k9 + k10 + k11 + k12 + k13 + k14 + k15 + k16 + k17;
 
-% Solve for unknown displacements -- this needs to be 10 by 10 to divide
+%We know u1x = u1y = u2x = 0 because the bridge experiences support
+%reactions in these directions 
+
+% Solve for unknown displacements -- this needs to be 17 by 17 to divide
 % properly by the forces 
-U = K \ [ 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; P];
+u = [K(4:20,4:20)] \ [0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; P; 0];
 
 % Create entire displacemnet matrix U (u1x = u1y = u2y = 0)
 % U = [0; 0; u(1); 0; u(2); u(3)];
