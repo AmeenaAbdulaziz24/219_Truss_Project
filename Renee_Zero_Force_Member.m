@@ -1,18 +1,18 @@
-% FEM Sample Truss
+% Renee's Bridge with the Zero Force Member Between nodes 0 and 1
 
 % Clear Command Window and Workspace
 clear all, clc;
 
 % Knowns
 mass = 1; % Mass hanging from the bridge in kg
-P = (mass*9.81); %Converting the mass into a Force in kN
-E = 10.932; % Modulus of Elasticity in GPa
-A = 1; % Cross Section of the Truss (Rod) -- this is constant based on the 
+P = (mass*9.81); %Converting the mass into a Force in N
+E = 10.932*10^9; % Modulus of Elasticity in Pa
+A = 0.6 * (1/16)*(0.0254^2); % Cross Section of the Truss, Converted from inches squared to meters squared
 %geometry of %the single trusses used (should all be constant cross sections)
-l = [0.54; 0.6; 0.78; 1.2; 0.78; 1.2; 0.78; 1.2; 0.78; 1.2; 0.78]; 
+l = [5; 6; 7.81; 12; 7.81; 12; 7.81; 12; 7.81; 12; 7.81]; 
 %L array is hand calculated befrore simulation.  
 % geometry of the truss
-L = 25.4*l; %converting the array of centimeters into mm from inches
+L = l/100; %converting the array of centimeters into m from cm
 theata = [90; 0; 140; 0; 39.8; 0; 140; 0; 39.8; 0; 140;]; 
 %theata array is hand calculated befrore simulation.
 %measured from the horizontal
@@ -47,10 +47,10 @@ k1 = k(1) * [C(1)^2, CS(1), -C(1)^2, -CS(1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
 % Calculating the local stiffness matrix for member 2
 k2 = k(2) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-             0, 0, C(3)^2, CS(3), -C(3)^2, -CS(3), 0, 0, 0, 0, 0, 0, 0, 0;
-             0, 0, CS(3), S(3)^2, -CS(3), -S(3)^2, 0, 0, 0, 0, 0, 0, 0, 0;
-             0, 0, -C(3)^2, -CS(3), C(3)^2, CS(3), 0, 0, 0, 0, 0, 0, 0, 0;
-             0, 0, -CS(3), -S(3)^2, CS(3), S(3)^2, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, C(2)^2, CS(2), -C(2)^2, -CS(2), 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, CS(2), S(2)^2, -CS(2), -S(2)^2, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, -C(2)^2, -CS(2), C(2)^2, CS(2), 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, -CS(2), -S(2)^2, CS(2), S(2)^2, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -167,12 +167,12 @@ k9 = k(9) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, C(9)^2, CS(9), -C(9)^2, -CS(9), 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, CS(9), S(9)^2, -CS(9), -S(9)^2, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, -C(9)^2, -CS(9), C(9)^2, CS(9), 0, 0;
-             0, 0, 0, 0, 0, 0, 0, 0, -CS(9), -S(9)^2, CS(9), S(9)^2, 0, 0];
+             0, 0, 0, 0, 0, 0, 0, 0, -CS(9), -S(9)^2, CS(9), S(9)^2, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 % Calculating the local stiffness matrix for member 10
 k10 = k(10) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -214,69 +214,47 @@ K = k1 + k2 + k3 + k4 + k5 + k6 + k7 + k8 + k9 + k10 + k11;
 % Solve for unknown displacements & create displacement matrix
 % U = [K(3,3), K(3,5:6); K(5,3), K(5,5:6); K(6,3), K(6,5:6)] 
 u = [K(4,4:14); K(5,4:14); K(6,4:14); K(7,4:14); K(8,4:14); K(9,4:14); 
-     K(10,4:14); K(11,4:14); K(12,4:14); K(13,4:14); K(14,4:14)]\[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, P];
+     K(10,4:14); K(11,4:14); K(12,4:14); K(13,4:14); K(14,4:14)]\[0; 0; 0; 0; 0; 0; 0; 0; 0; 0; P];
 
+U = [0;0;0; u(1); u(2); u(3); u(4); u(5); u(6); u(7); u(8); u(9); u(10); u(11)];
 % Solve reation forces -- matricies
-%F = K * U;
+F = K * U;
 
 % Solve member forces
-% fe1 = k(1) * ((U(3)-U(1))*C(1) + (U(4)-U(2))*S(1));
-% fe2 = k(2) * ((U(5)-U(3))*C(2) + (U(6)-U(4))*S(2));
-% fe3 = k(3) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
 
-% Fe = [fe1;fe2;fe3];
+fe1 = k(1) * ((U(3)-U(1))*C(1) + (U(4)-U(2))*S(1));
+fe2 = k(2) * ((U(5)-U(3))*C(2) + (U(6)-U(4))*S(2));
+fe3 = k(3) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
 
-% Format and print results
-% fprintf('Nodal Displacements:\n');
-% j = 1;
-% for i = 1:2:length(U)
-%     fprintf('u%ix = %.3f P/EA\n', j, U(i));
-%     fprintf('u%iy = %.3f P/EA\n', j, U(i+1));
-%     j = j+1;
-% end
+fe4 = k(4) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe5 = k(5) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe6 = k(6) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe7 = k(7) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe8 = k(8) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe9 = k(9) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe10 = k(10) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe11 = k(11) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
 
-% fprintf('\nNodal Forces:\n');
-% j = 1;
-% for i = 1:2:length(F)
-%     fprintf('f%ix = %.3f P\n', j, F(i));
-%     fprintf('f%iy = %.3f P\n', j, F(i+1));
-%     j = j+1;
-% end
+Fe = [fe1;fe2;fe3;fe4;fe5;fe6;fe7;fe8;fe9;fe10;fe11];
 
-% fprintf('\nMember Forces:\n');
-% for i = 1:length(Fe)
-%     fprintf('f(%i) = %.3f P\n', i, Fe(i));
-% end
+%Format and print results
+fprintf('Nodal Displacements:\n');
+j = 1;
+for i = 1:2:length(U)
+    fprintf('u%ix = %.3f P/EA\n', j, U(i));
+    fprintf('u%iy = %.3f P/EA\n', j, U(i+1));
+    j = j+1;
+end
 
-%{  stiffness matrix template
-% Calculating the local stiffness matrix for member z
-% kz = k(z) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-%              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-%              
-%              C(z)^2, CS(z), -C(z)^2, -CS(z),
-%              CS(z), S(z)^2, -CS(z), -S(z)^2,
-%              -C(z)^2, -CS(z), C(z)^2, CS(z),
-%              -CS(z), -S(z)^2, CS(z), S(z)^2, 
-%              
-%                 C(z)^2, CS(z), 0, 0, -C(z)^2, -CS(z),
-%              CS(z), S(z)^2, 0, 0, -CS(z), -S(z)^2,
-%              -C(z)^2, -CS(z), 0, 0, C(z)^2, CS(z),
-%              -CS(z), -S(z)^2, 0, 0, CS(z), S(z)^2, 
+fprintf('\nNodal Forces:\n');
+j = 1;
+for i = 1:2:length(F)
+    fprintf('f%ix = %.3f P\n', j, F(i));
+    fprintf('f%iy = %.3f P\n', j, F(i+1));
+    j = j+1;
+end
+
+fprintf('\nMember Forces:\n');
+for i = 1:length(Fe)
+    fprintf('f(%i) = %.3f P\n', i, Fe(i));
+end
