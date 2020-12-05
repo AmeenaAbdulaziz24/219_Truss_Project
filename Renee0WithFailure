@@ -1,0 +1,467 @@
+% Renee's Bridge with the Zero Force Member Between nodes 0 and 1
+%This one works properly 
+
+% Clear Command Window and Workspace
+clear all, clc;
+
+% Knowns
+mass = 40; % Mass hanging from the bridge in kg
+P = (mass*9.81); %Converting the mass into a Force in N
+E = 10.932*10^9; % Modulus of Elasticity in Pa
+A = 0.6 * (1/16)*(0.0254^2); % Cross Section of the Truss, Converted from inches squared to meters squared
+%geometry of %the single trusses used (should all be constant cross sections)
+l = [5; 6; 7.81; 12; 7.81; 12; 7.81; 12; 7.81; 12; 7.81]; 
+%L array is hand calculated befrore simulation.  
+% geometry of the truss
+L = l/100; %converting the array of centimeters into m from cm
+theata = [90; 0; 140; 0; 39.8; 0; 140; 0; 39.8; 0; 140;]; 
+%theata array is hand calculated befrore simulation.
+%measured from the horizontal
+
+% K coeffients, from simplifying Hooke's law -- .* is an element-wise
+% multiplication, this produces as matrix k that is 3 elements (the size of
+% L)
+k = E.*A./L;
+
+% Generate K Matricies for each truss
+% General K matrix
+C = cosd(theata);
+S = sind(theata);
+CS = C.*S; %".*" is a known function in matlab which multiplies matrix C and S element by element and returns the result in CS
+
+%Calculating the stiffness matrix for member 1 (14 x 14) 
+k1 = k(1) * [C(1)^2, CS(1), -C(1)^2, -CS(1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             CS(1), S(1)^2, -CS(1), -S(1)^2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             -C(1)^2, -CS(1), C(1)^2, CS(1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             -CS(1), -S(1)^2, CS(1), S(1)^2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+         
+% Calculating the local stiffness matrix for member 2
+k2 = k(2) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+             0, 0, C(2)^2, CS(2), -C(2)^2, -CS(2), 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, CS(2), S(2)^2, -CS(2), -S(2)^2, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, -C(2)^2, -CS(2), C(2)^2, CS(2), 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, -CS(2), -S(2)^2, CS(2), S(2)^2, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+% Calculating the local stiffness matrix for member 3
+k3 = k(3) * [C(3)^2, CS(3), 0, 0, -C(3)^2, -CS(3), 0, 0, 0, 0, 0, 0, 0, 0;
+              CS(3), S(3)^2, 0, 0, -CS(3), -S(3)^2, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             -C(3)^2, -CS(3), 0, 0, C(3)^2, CS(3), 0, 0, 0, 0, 0, 0, 0, 0;
+             -CS(3), -S(3)^2, 0, 0, CS(3), S(3)^2, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+             
+% Calculating the local stiffness matrix for member 4
+k4 = k(4) * [C(4)^2, CS(4), 0, 0, 0, 0, -C(4)^2, -CS(4), 0, 0, 0, 0, 0, 0;
+            CS(4), S(4)^2 0, 0, 0, 0, -CS(4), -S(4)^2, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             -C(4)^2, -CS(4), 0, 0, 0, 0, C(4)^2, CS(4), 0, 0, 0, 0, 0, 0;
+             -CS(4), -S(4)^2, 0, 0, 0, 0, CS(4), S(4)^2,  0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+     
+            
+% Calculating the local stiffness matrix for member 5
+k5 = k(5) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, C(5)^2, CS(5), -C(5)^2, -CS(5), 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, CS(5), S(5)^2, -CS(5), -S(5)^2, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, -C(5)^2, -CS(5), C(5)^2, CS(5), 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, -CS(5), -S(5)^2, CS(5), S(5)^2, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+% Calculating the local stiffness matrix for member 6
+k6 = k(6) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, C(6)^2, CS(6), 0, 0, -C(6)^2, -CS(6), 0, 0, 0, 0;
+             0, 0, 0, 0, CS(6), S(6)^2, 0, 0, -CS(6), -S(6)^2, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, -C(6)^2, -CS(6), 0, 0, C(6)^2, CS(6), 0, 0, 0, 0;
+             0, 0, 0, 0, -CS(6), -S(6)^2, 0, 0, CS(6), S(6)^2, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+% Calculating the local stiffness matrix for member 7
+k7 = k(7) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, C(7)^2, CS(7), -C(7)^2, -CS(7), 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, CS(7), S(7)^2, -CS(7), -S(7)^2, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, -C(7)^2, -CS(7), C(7)^2, CS(7), 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, -CS(7), -S(7)^2, CS(7), S(7)^2,  0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+         
+% Calculating the local stiffness matrix for member 8
+k8 = k(8) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, C(8)^2, CS(8), 0, 0, -C(8)^2, -CS(8), 0, 0;
+             0, 0, 0, 0, 0, 0, CS(8), S(8)^2, 0, 0, -CS(8), -S(8)^2, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, -C(8)^2, -CS(8), 0, 0, C(8)^2, CS(8), 0, 0;
+             0, 0, 0, 0, 0, 0, -CS(8), -S(8)^2, 0, 0, CS(8), S(8)^2, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+         
+ 
+% Calculating the local stiffness matrix for member 9
+k9 = k(9) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, C(9)^2, CS(9), -C(9)^2, -CS(9), 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, CS(9), S(9)^2, -CS(9), -S(9)^2, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, -C(9)^2, -CS(9), C(9)^2, CS(9), 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, -CS(9), -S(9)^2, CS(9), S(9)^2, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+% Calculating the local stiffness matrix for member 10
+k10 = k(10) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, C(10)^2, CS(10), 0, 0, -C(10)^2, -CS(10);
+             0, 0, 0, 0, 0, 0, 0, 0, CS(10), S(10)^2, 0, 0, -CS(10), -S(10)^2;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, -C(10)^2, -CS(10), 0, 0, C(10)^2, CS(10);
+             0, 0, 0, 0, 0, 0, 0, 0, -CS(10), -S(10)^2, 0, 0, CS(10), S(10)^2];
+
+% Calculating the local stiffness matrix for member 11
+k11 = k(11) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, C(11)^2, CS(11), -C(11)^2, -CS(11);
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CS(11), S(11)^2, -CS(11), -S(11)^2;
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -C(11)^2, -CS(11), C(11)^2, CS(11);
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -CS(11), -S(11)^2, CS(11), S(11)^2];
+                
+%assembling the global stiffness matrix (of all the memebers)
+K = k1 + k2 + k3 + k4 + k5 + k6 + k7 + k8 + k9 + k10 + k11;
+
+% Solve for unknown displacements and create the displacement matrix 
+%U = K \ [ 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; P];
+% Solve for unknown displacements & create displacement matrix
+% U = [K(3,3), K(3,5:6); K(5,3), K(5,5:6); K(6,3), K(6,5:6)] 
+u = [K(4,4:14); K(5,4:14); K(6,4:14); K(7,4:14); K(8,4:14); K(9,4:14); 
+     K(10,4:14); K(11,4:14); K(12,4:14); K(13,4:14); K(14,4:14)]\[0; 0; 0; 0; 0; 0; 0; 0; 0; 0; P];
+
+U = [0;0;0; u(1); u(2); u(3); u(4); u(5); u(6); u(7); u(8); u(9); u(10); u(11)];
+% Solve reation forces -- matricies
+F = K * U;
+
+% Solve member forces
+
+fe1 = k(1) * ((U(3)-U(1))*C(1) + (U(4)-U(2))*S(1));
+fe2 = k(2) * ((U(5)-U(3))*C(2) + (U(6)-U(4))*S(2));
+fe3 = k(3) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+
+fe4 = k(4) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe5 = k(5) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe6 = k(6) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe7 = k(7) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe8 = k(8) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe9 = k(9) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe10 = k(10) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe11 = k(11) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+
+Fe = [fe1;fe2;fe3;fe4;fe5;fe6;fe7;fe8;fe9;fe10;fe11];
+
+%Format and print results
+fprintf('Nodal Displacements:\n');
+j = 1;
+for i = 1:2:length(U)
+    fprintf('u%ix = %.3f P/EA\n', j, U(i));
+    fprintf('u%iy = %.3f P/EA\n', j, U(i+1));
+    j = j+1;
+end
+
+fprintf('\nNodal Forces:\n');
+j = 1;
+for i = 1:2:length(F)
+    fprintf('f%ix = %.3f P\n', j, F(i));
+    fprintf('f%iy = %.3f P\n', j, F(i+1));
+    j = j+1;
+end
+
+fprintf('\nMember Forces:\n');
+for i = 1:length(Fe)
+    fprintf('f(%i) = %.3f P\n', i, Fe(i));
+end
+
+m_num = 11;
+%dummy lengths/internal forces vectors (members 1-4)
+% L = [0.05, 0.06, 0.0781, 0.08];
+% %Fe = [9.81, 58.86, -15.32, 47.09];
+% Fe = [102, 90, -15.32, -84];
+
+%material properties
+N_m = 65.163*10^6;  %normal strength of members
+S_m = 4.2*10^6;     %shear strength of members
+N_p = 1139*10^6;    %normal strength of pins
+ S_p = 54*10^6;      %shear strength of pins
+% %E = 10.932*10^9;
+% 
+%material dimensions
+t = 0.0015875;    %thickness
+w = 0.01524;   	  %width
+d = 0.0047625; 	  %pin diameter
+b = 0.005334+d/2; %distance from hole center to member edge
+%A = t*w;          %area %do you need this??
+I = (1/12)*w*t^3; %moment of inertia
+
+%max tension
+T_max = max(Fe);
+%max compression and index of max compression
+[C_max,I_c] = min(Fe);
+L_c = l(I_c); %length of member with max compression
+
+%max force
+P_max = max(abs(Fe));
+
+%print which members failed from yielding stress
+if (yielding(T_max, t, w, d, N_m))
+    fprintf('Yielding failure:\n');
+    for n = 1:m_num
+        if(yielding(Fe(n), t, w, d, N_m))
+            fprintf('Member %i\n', n);
+        end
+    end
+end
+
+%print which members failed from bearing stress
+%since basswood has lower normal strength than pins, members will fail
+%first
+if (bearing(P_max, t, d, N_m))
+    fprintf('Bearing failure:\n');
+    for n = 1:m_num
+        if(bearing(Fe(n), t, d, N_m))
+            fprintf('Member %i\n', n);
+        end
+    end
+end
+
+%print which members failed from tear out
+if (tearout(T_max, t, b, S_m))
+    fprintf('Tear out failure:\n');
+    for n = 1:m_num
+        if((Fe(n) > 0) && tearout(Fe(n), t, b, S_m))
+            fprintf('Member %i\n', n);
+        end
+    end
+end
+
+%print which members failed from buckling
+if (buckling(C_max, E, I, L_c))
+    fprintf('Buckling failure:\n');
+    for n = 1:m_num
+        if((Fe(n) < 0) && buckling(Fe(n), E, I, L(n)))
+            fprintf('Member %i\n', n);
+        end
+    end
+end
+
+
+
+%declaration of global variables
+global forceL
+global nodes  
+global member
+global numMems
+
+% this is test data, change depending on truss
+
+%angles
+
+%counter for how far the force calculations will go when finding the largest force in each pin
+%number of members connected to each node
+member = [3, 2, 4, 4, 4, 3, 2];
+
+%this is the connection of members for the nodes
+%has to be square matrix
+conn = [1, 3, 4, 0;
+1, 2, 0, 0;
+2, 3, 5, 6;
+4, 5,  7, 8;
+6, 7, 9, 10;
+8, 9, 11, 0;
+10, 11, 0, 0];
+
+%assigns number of pins on the truss
+nodes = 7;
+
+%end of test data
+
+%finds the largest force in each pin
+for n = 1:nodes
+    %this is used to store the number of members attached to the pin with 
+    % maximum force
+    if (n == 1) 
+        numMems = 1;
+    end
+    %stores the first x and y components
+    largestx = Fe(conn(n, 1))*cosd(theata(conn(n, 1)));
+    largesty = Fe(conn(n, 1))*sind(theata(conn(n, 1)));
+    %counts from 2 to the number or members left and finds those components
+    for x = 2:member(n)
+        xCurr = Fe(conn(n, x))*cosd(theata(conn(n, x)));
+        yCurr = Fe(conn(n, x))*sind(theata(conn(n, x)));
+        %compares the current x and y components to the largest
+        if (abs(xCurr) + abs(yCurr) > abs(largestx) + abs(largesty)) 
+            %if larger, then it will be stored
+            largestx = xCurr;
+            largesty = yCurr;
+        end
+    end
+    %finds the force using the x and y components
+    forceL(n) = sqrt(largestx ^ 2 + largesty ^2);
+%     fprintf('Member %i Force %i\n', n, forceL(n));
+    %stores the row number for which has the greatest force
+    if (forceL(n) > forceL(numMems)) 
+        numMems = n;
+    end
+end
+
+%print which members failed from shearing
+if (shearing(forceL(n), d, member(numMems), S_p))
+    fprintf('Shearing failure:\n');
+    for n = 1:nodes
+        if(shearing(forceL(n), d, member(n), S_p))
+            fprintf('Member %i\n', n);
+        end
+    end
+end
+
+%this is the failure function for shearing
+function failure = shearing(F, d, n, maxS)
+    %this equation calculates the shearing in the desired pin based on the
+    %force
+    %if the number of members attached to the pin is greater than 2 then
+    %use this equation
+    if (n > 2) 
+        S = (F/4) / ((pi/4)*d^2);
+    else 
+        S = F / ((pi/4)*d^2);
+    end
+    
+    %fprintf('Shear Member %i\n', S);
+    maxS = maxS/sqrt(3);
+    %fprintf('Max %i\n', maxS);
+    if (S > maxS)
+        %fprintf('Fail Member %i\n', n);
+        failure = 1;
+    else 
+        failure = 0;
+    end
+end
+
+%returns true if failure from yielding stress
+function failure = yielding(F, t, w, d, N_m)
+	N = F/(t*(w-d)); %normal stress required for no failure
+	if (N > N_m)
+		failure = 1;
+	else
+		failure = 0;
+    end
+end
+
+%returns true if failure from bearing stress
+function failure = bearing(F, t, d, N_m) 
+	N = F/(t*d); %normal stress required for no failure
+	if (abs(N) > abs(N_m))
+		failure = 1;
+	else
+		failure = 0;
+    end
+end
+
+%returns true if failure from tearout
+function failure = tearout(F, t, b, S_m)
+	S = F/(2*b*t); %shearing stress required for no failure
+	if (S > S_m)
+		failure = 1;
+	else
+		failure = 0;
+    end
+end
+
+%returns true if failure from buckling
+function failure = buckling(F, E, I, L)
+    P_cr = ((pi^2)*E*I)/(L^2); %max force required for no failure
+	if (abs(P_cr) < abs(F))
+		failure = 1;
+	else
+		failure = 0;
+    end
+end
