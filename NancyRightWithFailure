@@ -418,37 +418,37 @@ u = [K(4,4:20); K(5,4:20); K(6,4:20); K(7,4:20); K(8,4:20)
      
 U = [0;0;0; u(1); u(2); u(3); u(4); u(5); u(6); u(7); u(8); u(9); u(10); u(11); u(12); u(13); u(14); u(15); u(16); u(17)];
 
-% Solve reation forces -- matricies
-F = K * U;
-
-% Solve member forces
-fe1 = k(1) * ((U(3)-U(1))*C(1) + (U(4)-U(2))*S(1));
-fe2 = k(2) * ((U(5)-U(3))*C(2) + (U(6)-U(4))*S(2));
-fe3 = k(3) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
-
-Fe = [fe1;fe2;fe3];
-
-% Format and print results
-fprintf('Nodal Displacements:\n');
-j = 1;
-for i = 1:2:length(U)
-    fprintf('u%ix = %.3f P/EA\n', j, U(i));
-    fprintf('u%iy = %.3f P/EA\n', j, U(i+1));
-    j = j+1;
-end
-
-fprintf('\nNodal Forces:\n');
-j = 1;
-for i = 1:2:length(F)
-    fprintf('f%ix = %.3f P\n', j, F(i));
-    fprintf('f%iy = %.3f P\n', j, F(i+1));
-    j = j+1;
-end
-
-fprintf('\nMember Forces:\n');
-for i = 1:length(Fe)
-    fprintf('f(%i) = %.3f P\n', i, Fe(i));
-end
+% % Solve reation forces -- matricies
+% F = K * U;
+% 
+% % Solve member forces
+% fe1 = k(1) * ((U(3)-U(1))*C(1) + (U(4)-U(2))*S(1));
+% fe2 = k(2) * ((U(5)-U(3))*C(2) + (U(6)-U(4))*S(2));
+% fe3 = k(3) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+% 
+% Fe = [fe1;fe2;fe3];
+% 
+% % Format and print results
+% fprintf('Nodal Displacements:\n');
+% j = 1;
+% for i = 1:2:length(U)
+%     fprintf('u%ix = %.3f P/EA\n', j, U(i));
+%     fprintf('u%iy = %.3f P/EA\n', j, U(i+1));
+%     j = j+1;
+% end
+% 
+% fprintf('\nNodal Forces:\n');
+% j = 1;
+% for i = 1:2:length(F)
+%     fprintf('f%ix = %.3f P\n', j, F(i));
+%     fprintf('f%iy = %.3f P\n', j, F(i+1));
+%     j = j+1;
+% end
+% 
+% fprintf('\nMember Forces:\n');
+% for i = 1:length(Fe)
+%     fprintf('f(%i) = %.3f P\n', i, Fe(i));
+% end
 
 m_num = 17;
 
