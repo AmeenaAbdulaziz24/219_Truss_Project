@@ -1,4 +1,5 @@
 % Renee's Bridge with the Zero Force Member Between nodes 0 and 1
+%This one works properly 
 
 % Clear Command Window and Workspace
 clear all, clc;
