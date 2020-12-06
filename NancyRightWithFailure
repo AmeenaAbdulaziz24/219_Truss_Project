@@ -4,7 +4,7 @@
 clear all, clc;
 
 % Knowns
-mass = 1; % Mass hanging from the bridge in k
+mass = 1.73; % Max mass before failure, at 1.74 tear out in member 2
 
 P = (mass*(-9.81)); %Converting the mass into a Force in N
 E = 10.932*10^9; % Modulus of Elasticity in Pa
@@ -522,7 +522,6 @@ end
 
 %print which members failed from buckling
 if (buckling(C_max, E, I, L_c))
-            fprintf('Member %i\n', L(4));
     fprintf('Buckling failure:\n');
     for n = 1:m_num
         if((Fe(n) < 0) && buckling(Fe(n), E, I, L(n)))
