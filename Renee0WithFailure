@@ -285,7 +285,7 @@ I = (1/12)*w*t^3; %moment of inertia
 T_max = max(Fe);
 %max compression and index of max compression
 [C_max,I_c] = min(Fe);
-L_c = l(I_c); %length of member with max compression
+L_c = L(I_c); %length of member with max compression
 
 %max force
 P_max = max(abs(Fe));
