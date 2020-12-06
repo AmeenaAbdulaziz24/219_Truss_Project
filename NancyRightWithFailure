@@ -6,7 +6,7 @@ clear all, clc;
 % Knowns
 mass = 1; % Mass hanging from the bridge in k
 
-P = (mass*9.81); %Converting the mass into a Force in N
+P = (mass*(-9.81)); %Converting the mass into a Force in N
 E = 10.932*10^9; % Modulus of Elasticity in Pa
 A = (0.6*0.0254) * ((1/16)*0.0254); % Cross Section of the Truss, Converted from inches to meters
 %geometry of %the single trusses used (should all be constant cross sections)
@@ -214,10 +214,10 @@ k9 = k(9) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, C(9)^2, CS(9), -C(9)^2, -CS(9), 0, 0, 0, 0, 0, 0;
-             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CS(9), S(9)^2, -CS(9), -S(9)^2, 0, 0, 0, 0, 0, 0;
-             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -C(9)^2, -CS(9), C(9)^2, CS(9), 0, 0, 0, 0, 0, 0;
-             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -CS(9), -S(9)^2, CS(9), S(9)^2, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, C(9)^2, CS(9), -C(9)^2, -CS(9), 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, CS(9), S(9)^2, -CS(9), -S(9)^2, 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, -C(9)^2, -CS(9), C(9)^2, CS(9), 0, 0, 0, 0, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, -CS(9), -S(9)^2, CS(9), S(9)^2, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -414,21 +414,35 @@ K = k1 + k2 + k3 + k4 + k5 + k6 + k7 + k8 + k9 + k10 + k11 + k12 + k13 + k14 + k
 u = [K(4,4:20); K(5,4:20); K(6,4:20); K(7,4:20); K(8,4:20)
      K(9,4:20); K(10,4:20); K(11,4:20); K(12,4:20); K(13,4:20)
      K(14,4:20); K(15,4:20); K(16,4:20); K(17,4:20); K(18,4:20)
-     K(19,4:20); K(20,4:20)] \ [0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; P; 0];
+     K(19,4:20); K(20,4:20)] \ [0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; P];
      
 U = [0;0;0; u(1); u(2); u(3); u(4); u(5); u(6); u(7); u(8); u(9); u(10); u(11); u(12); u(13); u(14); u(15); u(16); u(17)];
 
 % % Solve reation forces -- matricies
-% F = K * U;
+F = K * U;
 % 
 % % Solve member forces
-% fe1 = k(1) * ((U(3)-U(1))*C(1) + (U(4)-U(2))*S(1));
-% fe2 = k(2) * ((U(5)-U(3))*C(2) + (U(6)-U(4))*S(2));
-% fe3 = k(3) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
-% 
-% Fe = [fe1;fe2;fe3];
-% 
-% % Format and print results
+fe1 = k(1) * ((U(1)-U(3))*C(1) + (U(2)-U(4))*S(1));
+fe2 = k(2) * ((U(5)-U(1))*C(2) + (U(6)-U(2))*S(2));
+fe3 = k(3) * ((U(5)-U(3))*C(3) + (U(6)-U(4))*S(3));
+fe4 = k(4) * ((U(7)-U(3))*C(4) + (U(8)-U(4))*S(4));
+fe5 = k(5) * ((U(5)-U(7))*C(5) + (U(6)-U(8))*S(5));
+fe6 = k(6) * ((U(5)-U(9))*C(6) + (U(6)-U(10))*S(6));
+fe7 = k(7) * ((U(9)-U(7))*C(7) + (U(10)-U(8))*S(7));
+fe8 = k(8) * ((U(11)-U(7))*C(8) + (U(12)-U(8))*S(8));
+fe9 = k(9) * ((U(9)-U(11))*C(9) + (U(10)-U(12))*S(9));
+fe10 = k(10) * ((U(9)-U(13))*C(10) + (U(10)-U(14))*S(10));
+fe11 = k(11) * ((U(13)-U(11))*C(11) + (U(14)-U(12))*S(11));
+fe12 = k(12) * ((U(15)-U(11))*C(12) + (U(16)-U(12))*S(12));
+fe13 = k(13) * ((U(13)-U(15))*C(13) + (U(14)-U(16))*S(13));
+fe14 = k(14) * ((U(13)-U(17))*C(14) + (U(14)-U(18))*S(14));
+fe15 = k(15) * ((U(17)-U(15))*C(15) + (U(18)-U(16))*S(15));
+fe16 = k(16) * ((U(19)-U(15))*C(16) + (U(20)-U(16))*S(16));
+fe17 = k(17) * ((U(17)-U(19))*C(17) + (U(18)-U(20))*S(17));
+
+Fe = [fe1;fe2;fe3;fe4;fe5;fe6;fe7;fe8;fe9;fe10;fe11;fe12;fe13;fe14;fe15;fe16;fe17];
+
+%Format and print results
 % fprintf('Nodal Displacements:\n');
 % j = 1;
 % for i = 1:2:length(U)
@@ -440,14 +454,14 @@ U = [0;0;0; u(1); u(2); u(3); u(4); u(5); u(6); u(7); u(8); u(9); u(10); u(11); 
 % fprintf('\nNodal Forces:\n');
 % j = 1;
 % for i = 1:2:length(F)
-%     fprintf('f%ix = %.3f P\n', j, F(i));
-%     fprintf('f%iy = %.3f P\n', j, F(i+1));
+%     fprintf('f%ix = %.3f N\n', j, F(i));
+%     fprintf('f%iy = %.3f N\n', j, F(i+1));
 %     j = j+1;
 % end
 % 
 % fprintf('\nMember Forces:\n');
 % for i = 1:length(Fe)
-%     fprintf('f(%i) = %.3f P\n', i, Fe(i));
+%     fprintf('f(%i) = %.3f N\n', i, Fe(i));
 % end
 
 m_num = 17;
@@ -457,28 +471,26 @@ N_m = 65.163*10^6;  %normal strength of members
 S_m = 4.2*10^6;     %shear strength of members
 N_p = 1139*10^6;    %normal strength of pins
 S_p = 54*10^6;      %shear strength of pins
-% %E = 10.932*10^9;
-% 
+
+
 %material dimensions
 t = 0.0015875;    %thickness
 w = 0.01524;   	  %width
 d = 0.0047625; 	  %pin diameter
 b = 0.005334+d/2; %distance from hole center to member edge
-%A = t*w;          %area %do you need this??
 I = (1/12)*w*t^3; %moment of inertia
 
 %max tension
 T_max = max(Fe);
 %max compression and index of max compression
 [C_max,I_c] = min(Fe);
-L_c = l(I_c); %length of member with max compression
+L_c = L(I_c); %length of member with max compression
 
 %max force
 P_max = max(abs(Fe));
 
 %print which members failed from yielding stress
 if (yielding(T_max, t, w, d, N_m))
-    fprintf('Yielding failure:\n');
     for n = 1:m_num
         if(yielding(Fe(n), t, w, d, N_m))
             fprintf('Member %i\n', n);
@@ -510,6 +522,7 @@ end
 
 %print which members failed from buckling
 if (buckling(C_max, E, I, L_c))
+            fprintf('Member %i\n', L(4));
     fprintf('Buckling failure:\n');
     for n = 1:m_num
         if((Fe(n) < 0) && buckling(Fe(n), E, I, L(n)))
@@ -536,7 +549,7 @@ conn = [1, 2, 0, 0;
     4, 5, 7, 8;
     6, 7, 9, 10;
     8, 9, 11, 12;
-    10, 11, 13, 19;
+    10, 11, 13, 14;
     12, 13, 15, 16;
     14, 15, 17, 0;
     16, 17, 0, 0];
