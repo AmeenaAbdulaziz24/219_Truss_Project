@@ -5,7 +5,7 @@
 clear all, clc;
 
 % Knowns
-mass = 40; % Mass hanging from the bridge in kg
+mass = 1.75; % Max mass without failure (at 1.76 tear out in member 2)
 P = (mass*9.81); %Converting the mass into a Force in N
 E = 10.932*10^9; % Modulus of Elasticity in Pa
 A = 0.6 * (1/16)*(0.0254^2); % Cross Section of the Truss, Converted from inches squared to meters squared
@@ -239,26 +239,26 @@ fe11 = k(11) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
 Fe = [fe1;fe2;fe3;fe4;fe5;fe6;fe7;fe8;fe9;fe10;fe11];
 
 %Format and print results
-fprintf('Nodal Displacements:\n');
-j = 1;
-for i = 1:2:length(U)
-    fprintf('u%ix = %.3f P/EA\n', j, U(i));
-    fprintf('u%iy = %.3f P/EA\n', j, U(i+1));
-    j = j+1;
-end
-
-fprintf('\nNodal Forces:\n');
-j = 1;
-for i = 1:2:length(F)
-    fprintf('f%ix = %.3f P\n', j, F(i));
-    fprintf('f%iy = %.3f P\n', j, F(i+1));
-    j = j+1;
-end
-
-fprintf('\nMember Forces:\n');
-for i = 1:length(Fe)
-    fprintf('f(%i) = %.3f P\n', i, Fe(i));
-end
+% fprintf('Nodal Displacements:\n');
+% j = 1;
+% for i = 1:2:length(U)
+%     fprintf('u%ix = %.3f P/EA\n', j, U(i));
+%     fprintf('u%iy = %.3f P/EA\n', j, U(i+1));
+%     j = j+1;
+% end
+% 
+% fprintf('\nNodal Forces:\n');
+% j = 1;
+% for i = 1:2:length(F)
+%     fprintf('f%ix = %.3f P\n', j, F(i));
+%     fprintf('f%iy = %.3f P\n', j, F(i+1));
+%     j = j+1;
+% end
+% 
+% fprintf('\nMember Forces:\n');
+% for i = 1:length(Fe)
+%     fprintf('f(%i) = %.3f P\n', i, Fe(i));
+% end
 
 m_num = 11;
 %dummy lengths/internal forces vectors (members 1-4)
