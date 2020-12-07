@@ -4,9 +4,9 @@
 clear all, clc;
 
 % Knowns
-mass = 1; % Mass hanging from the bridge in k
+mass = 1.38; % Max mass before failure (buckling in member 4 with compressive force of 60.435 N)
 
-P = (mass*9.81); %Converting the mass into a Force in N
+P = (mass*(-9.81)); %Converting the mass into a Force in N
 E = 10.932*10^9; % Modulus of Elasticity in Pa
 A = (0.6*0.0254) * ((1/16)*0.0254); % Cross Section of the Truss, Converted from inches to meters
 %geometry of a single trusses used (should all be constant cross sections)
@@ -182,10 +182,10 @@ k9 = k(9) * [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, C(9)^2, CS(9), -C(9)^2, -CS(9), 0, 0;
-             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CS(9), S(9)^2, -CS(9), -S(9)^2, 0, 0;
-             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -C(9)^2, -CS(9), C(9)^2, CS(9), 0, 0;
-             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -CS(9), -S(9)^2, CS(9), S(9)^2, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, C(9)^2, CS(9), -C(9)^2, -CS(9), 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, CS(9), S(9)^2, -CS(9), -S(9)^2, 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, -C(9)^2, -CS(9), C(9)^2, CS(9), 0, 0, 0, 0;
+             0, 0, 0, 0, 0, 0, 0, 0, -CS(9), -S(9)^2, CS(9), S(9)^2, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -272,41 +272,34 @@ K = k1 + k2 + k3 + k4 + k5 + k6 + k7 + k8 + k9 + k10 + k11 + k12 + k13;
 % Solve for unknown displacements & create displacement matrix
 u = [K(4,4:16); K(5,4:16); K(6,4:16); K(7,4:16); K(8,4:16)
      K(9,4:16); K(10,4:16); K(11,4:16); K(12,4:16); K(13,4:16)
-     K(14,4:16); K(15,4:16); K(16,4:16)] \ [0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; P; 0];
+     K(14,4:16); K(15,4:16); K(16,4:16)] \ [0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; P];
 
 U = [0;0;0; u(1); u(2); u(3); u(4); u(5); u(6); u(7); u(8); u(9); u(10); u(11); u(12); u(13)];
 
 % Solve reation forces -- matricies
-% F = K * U;
+F = K * U;
 
 % Solve member forces
-% fe1 = k(1) * ((U(3)-U(1))*C(1) + (U(4)-U(2))*S(1));
-% fe2 = k(2) * ((U(5)-U(3))*C(2) + (U(6)-U(4))*S(2));
-% fe3 = k(3) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe1 = k(1) * ((U(1)-U(3))*C(1) + (U(2)-U(4))*S(1));
+fe2 = k(2) * ((U(5)-U(1))*C(2) + (U(6)-U(2))*S(2));
+fe3 = k(3) * ((U(5)-U(3))*C(3) + (U(6)-U(4))*S(3));
+fe4 = k(4) * ((U(7)-U(3))*C(4) + (U(8)-U(4))*S(4));
+fe5 = k(5) * ((U(5)-U(7))*C(5) + (U(6)-U(8))*S(5));
+fe6 = k(6) * ((U(5)-U(9))*C(6) + (U(6)-U(10))*S(6));
+fe7 = k(7) * ((U(9)-U(7))*C(7) + (U(10)-U(8))*S(7));
+fe8 = k(8) * ((U(11)-U(7))*C(8) + (U(12)-U(8))*S(8));
+fe9 = k(9) * ((U(9)-U(11))*C(9) + (U(10)-U(12))*S(9));
+fe10 = k(10) * ((U(9)-U(13))*C(10) + (U(10)-U(14))*S(10));
+fe11 = k(11) * ((U(13)-U(11))*C(11) + (U(14)-U(12))*S(11));
+fe12 = k(12) * ((U(15)-U(11))*C(12) + (U(16)-U(12))*S(12));
+fe13 = k(13) * ((U(13)-U(15))*C(13) + (U(14)-U(16))*S(13));
 
-% Fe = [fe1;fe2;fe3];
+Fe = [fe1;fe2;fe3;fe4;fe5;fe6;fe7;fe8;fe9;fe10;fe11; fe12;fe13];
 
-% Format and print results
-% fprintf('Nodal Displacements:\n');
-% j = 1;
-% for i = 1:2:length(U)
-%     fprintf('u%ix = %.3f P/EA\n', j, U(i));
-%     fprintf('u%iy = %.3f P/EA\n', j, U(i+1));
-%     j = j+1;
-% end
-
-% fprintf('\nNodal Forces:\n');
-% j = 1;
-% for i = 1:2:length(F)
-%     fprintf('f%ix = %.3f P\n', j, F(i));
-%     fprintf('f%iy = %.3f P\n', j, F(i+1));
-%     j = j+1;
-% end
-
-% fprintf('\nMember Forces:\n');
-% for i = 1:length(Fe)
-%     fprintf('f(%i) = %.3f P\n', i, Fe(i));
-% end
+fprintf('\nMember Forces:\n');
+for i = 1:length(Fe)
+    fprintf('f(%i) = %.3f P\n', i, Fe(i));
+end
 
 m_num = 13;
 
@@ -329,7 +322,7 @@ I = (1/12)*w*t^3; %moment of inertia
 T_max = max(Fe);
 %max compression and index of max compression
 [C_max,I_c] = min(Fe);
-L_c = l(I_c); %length of member with max compression
+L_c = L(I_c); %length of member with max compression
 
 %max force
 P_max = max(abs(Fe));
