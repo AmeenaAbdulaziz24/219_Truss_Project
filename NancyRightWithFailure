@@ -568,13 +568,14 @@ nodes = 10;
 %end of test data
 
 %------------- Start Failure Calculations
-%finds the largest force in each pin
+%Finds the largest force by analysizving in each pin
 for n = 1:nodes
     %this is used to store the number of members attached to the pin with 
     % maximum force
     if (n == 1) 
         numMems = 1;
     end
+    
     %stores the first x and y components of the largest force 
     largestx = Fe(conn(n, 1))*cosd(theata(conn(n, 1)));
     largesty = Fe(conn(n, 1))*sind(theata(conn(n, 1)));
@@ -583,6 +584,7 @@ for n = 1:nodes
     for x = 2:member(n)
         xCurr = Fe(conn(n, x))*cosd(theata(conn(n, x)));
         yCurr = Fe(conn(n, x))*sind(theata(conn(n, x)));
+	
         %compares the current x and y components to the largest
         if (abs(xCurr) + abs(yCurr) > abs(largestx) + abs(largesty)) 
             %if larger, then it will be stored
@@ -590,9 +592,11 @@ for n = 1:nodes
             largesty = yCurr;
         end
     end
+    
     %finds the force using the x and y components
     forceL(n) = sqrt(largestx ^ 2 + largesty ^2);
-%     fprintf('Member %i Force %i\n', n, forceL(n));
+    
+    %fprintf('Member %i Force %i\n', n, forceL(n));
     %stores the row number for which has the greatest force
     if (forceL(n) > forceL(numMems)) 
         numMems = n;
