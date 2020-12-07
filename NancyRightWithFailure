@@ -520,13 +520,14 @@ if (tearout(T_max, t, b, S_m))
     end
 end
 
-%print which members failed from buckling
-if (buckling(C_max, E, I, L_c))
-    fprintf('Buckling failure:\n');
-    for n = 1:m_num
-        if((Fe(n) < 0) && buckling(Fe(n), E, I, L(n)))
-            fprintf('Member %i\n', n);
+buckle_label = 0; %stores whether "Buckling failure:" has been printed
+for n = 1:m_num
+    if((Fe(n) < 0) && buckling(Fe(n), E, I, L(n)))
+        if (buckle_label == 0)
+            buckle_label = 1;
+            fprintf('Buckling failure:\n');
         end
+        fprintf('Member %i\n', n);
     end
 end
 
