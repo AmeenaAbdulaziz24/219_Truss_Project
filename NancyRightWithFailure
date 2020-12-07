@@ -1,10 +1,10 @@
-% Nancy's Truss with a Right Angle Between nodes 1, 2 and 3 
+% 17
 
 % Clear Command Window and Workspace
 clear all, clc;
 
 % Knowns
-mass = 1.73; % Max mass before failure, at 1.74 tear out in member 2
+mass = 1.74; % Max mass before failure, at 1.74 tear out in member 2
 
 P = (mass*(-9.81)); %Converting the mass into a Force in N
 E = 10.932*10^9; % Modulus of Elasticity in Pa
@@ -442,27 +442,10 @@ fe17 = k(17) * ((U(17)-U(19))*C(17) + (U(18)-U(20))*S(17));
 
 Fe = [fe1;fe2;fe3;fe4;fe5;fe6;fe7;fe8;fe9;fe10;fe11;fe12;fe13;fe14;fe15;fe16;fe17];
 
-%Format and print results
-% fprintf('Nodal Displacements:\n');
-% j = 1;
-% for i = 1:2:length(U)
-%     fprintf('u%ix = %.3f P/EA\n', j, U(i));
-%     fprintf('u%iy = %.3f P/EA\n', j, U(i+1));
-%     j = j+1;
-% end
-% 
-% fprintf('\nNodal Forces:\n');
-% j = 1;
-% for i = 1:2:length(F)
-%     fprintf('f%ix = %.3f N\n', j, F(i));
-%     fprintf('f%iy = %.3f N\n', j, F(i+1));
-%     j = j+1;
-% end
-% 
-% fprintf('\nMember Forces:\n');
-% for i = 1:length(Fe)
-%     fprintf('f(%i) = %.3f N\n', i, Fe(i));
-% end
+fprintf('\nMember Forces:\n');
+for i = 1:length(Fe)
+    fprintf('f(%i) = %.3f N\n', i, Fe(i));
+end
 
 m_num = 17;
 
@@ -490,10 +473,11 @@ L_c = L(I_c); %length of member with max compression
 P_max = max(abs(Fe));
 
 %print which members failed from yielding stress
-if (yielding(T_max, t, w, d, N_m))
+if (yielding(T_max, t, w, d, N_m)~= 0)
     for n = 1:m_num
-        if(yielding(Fe(n), t, w, d, N_m))
-            fprintf('Member %i\n', n);
+        temp = yielding(Fe(n), t, w, d, N_m);
+        if(temp ~= 0)
+            fprintf('Member %i (Failure Stress: %i PA)\n', n, temp);;
         end
     end
 end
@@ -501,32 +485,37 @@ end
 %print which members failed from bearing stress
 %since basswood has lower normal strength than pins, members will fail
 %first
-if (bearing(P_max, t, d, N_m))
+if (bearing(P_max, t, d, N_m)~= 0)
     fprintf('Bearing failure:\n');
     for n = 1:m_num
-        if(bearing(Fe(n), t, d, N_m))
-            fprintf('Member %i\n', n);
+        temp = bearing(Fe(n), t, d, N_m);
+        if(temp ~= 0)
+            fprintf('Member %i (Failure Stress: %i Pa)\n', n, temp);
         end
     end
 end
 
 %print which members failed from tear out
-if (tearout(T_max, t, b, S_m))
+if (tearout(T_max, t, b, S_m)~= 0)
     fprintf('Tear out failure:\n');
     for n = 1:m_num
-        if((Fe(n) > 0) && tearout(Fe(n), t, b, S_m))
-            fprintf('Member %i\n', n);
+        temp = tearout(Fe(n), t, b, S_m);
+        if((Fe(n) > 0) && temp ~= 0)
+            fprintf('Member %i (Failure Stress: %i Pa)\n', n, temp);
         end
     end
 end
 
 %print which members failed from buckling
-if (buckling(C_max, E, I, L_c))
-    fprintf('Buckling failure:\n');
-    for n = 1:m_num
-        if((Fe(n) < 0) && buckling(Fe(n), E, I, L(n)))
-            fprintf('Member %i\n', n);
+buckle_label = 0; %stores whether "Buckling failure:" has been printed
+for n = 1:m_num
+    temp = buckling(Fe(n), E, I, L(n), A);
+    if((Fe(n) < 0) && temp ~= 0)
+        if (buckle_label == 0)
+            buckle_label = 1;
+            fprintf('Buckling failure:\n');
         end
+        fprintf('Member %i (Failure Stress: %i Pa)\n', n, temp);
     end
 end
 
@@ -589,16 +578,17 @@ for n = 1:nodes
 end
 
 %print which members failed from shearing
-if (shearing(forceL(n), d, member(numMems), S_p))
+if (shearing(forceL(n), d, member(numMems), S_p) ~= 0)
     fprintf('Shearing failure:\n');
     for n = 1:nodes
-        if(shearing(forceL(n), d, member(n), S_p))
-            fprintf('Member %i\n', n);
+        temp = shearing(forceL(n), d, member(n), S_p);
+        if(temp ~= 0)
+            fprintf('Member %i (Failure Stress: %i Pa)\n', n, temp);
         end
     end
 end
 
-%this is the failure function for shearing
+%returns failure stress if failure from shearing in pins
 function failure = shearing(F, d, n, maxS)
     %this equation calculates the shearing in the desired pin based on the
     %force
@@ -615,47 +605,47 @@ function failure = shearing(F, d, n, maxS)
     %fprintf('Max %i\n', maxS);
     if (S > maxS)
         %fprintf('Fail Member %i\n', n);
-        failure = 1;
+        failure = S;
     else 
         failure = 0;
     end
 end
 
-%returns true if failure from yielding stress
+%returns failure stress if failure from yielding stress
 function failure = yielding(F, t, w, d, N_m)
 	N = F/(t*(w-d)); %normal stress required for no failure
 	if (N > N_m)
-		failure = 1;
+		failure = N;
 	else
 		failure = 0;
     end
 end
 
-%returns true if failure from bearing stress
+%returns failure stress if failure from bearing stress
 function failure = bearing(F, t, d, N_m) 
 	N = F/(t*d); %normal stress required for no failure
 	if (abs(N) > abs(N_m))
-		failure = 1;
+		failure = N;
 	else
 		failure = 0;
     end
 end
 
-%returns true if failure from tearout
+%returns failure stress if failure from tearout
 function failure = tearout(F, t, b, S_m)
 	S = F/(2*b*t); %shearing stress required for no failure
 	if (S > S_m)
-		failure = 1;
+		failure = S;
 	else
 		failure = 0;
     end
 end
 
-%returns true if failure from buckling
-function failure = buckling(F, E, I, L)
+%returns failure stress if failure from buckling
+function failure = buckling(F, E, I, L, A)
     P_cr = ((pi^2)*E*I)/(L^2); %max force required for no failure
 	if (abs(P_cr) < abs(F))
-		failure = 1;
+		failure = P_cr/A;
 	else
 		failure = 0;
     end
