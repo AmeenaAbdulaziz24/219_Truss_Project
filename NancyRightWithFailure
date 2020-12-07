@@ -603,12 +603,12 @@ for n = 1:nodes
     end
 end
 
-%print which members failed from shearing
-if (shearing(forceL(n), d, member(numMems), S_p))
-    fprintf('Shearing failure:\n');
-    for n = 1:nodes
-        if(shearing(forceL(n), d, member(n), S_p))
-            fprintf('Member %i\n', n);
+%Print which members failed from yielding stress
+if (yielding(T_max, t, w, d, N_m))
+    for n = 1:m_num
+       temp = yielding(Fe(n),t,w,d, N_m);
+        if(Fe(n) > 0 && temp ~= 0)
+            fprintf('Member %i(Failure Stress: %i PA)\n', n, temp);
         end
     end
 end
