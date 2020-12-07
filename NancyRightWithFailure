@@ -470,6 +470,7 @@ Fe = [fe1;fe2;fe3;fe4;fe5;fe6;fe7;fe8;fe9;fe10;fe11;fe12;fe13;fe14;fe15;fe16;fe1
 % end
 
 %------------------------------------------------------------------- FAILURE ANALYSIS ---------------------------------------------------------------------------
+%Data used for the tests is outlined below
 %Number of memebers: 
 m_num = 17;
 
@@ -494,10 +495,10 @@ T_max = max(Fe);
 [C_max,I_c] = min(Fe);
 L_c = L(I_c); %length of member with max compression
 
-%max force
+%Max force
 P_max = max(abs(Fe));
 
-%print which members failed from yielding stress
+%Print which members failed from yielding stress
 if (yielding(T_max, t, w, d, N_m))
     for n = 1:m_num
         if(yielding(Fe(n), t, w, d, N_m))
@@ -506,9 +507,9 @@ if (yielding(T_max, t, w, d, N_m))
     end
 end
 
-%print which members failed from bearing stress
+%Print which members failed from bearing stress
 %since basswood has lower normal strength than pins, members will fail
-%first
+%before the pins fail
 if (bearing(P_max, t, d, N_m))
     fprintf('Bearing failure:\n');
     for n = 1:m_num
@@ -518,7 +519,7 @@ if (bearing(P_max, t, d, N_m))
     end
 end
 
-%print which members failed from tear out
+%print which members failed due to pin tear out
 if (tearout(T_max, t, b, S_m))
     fprintf('Tear out failure:\n');
     for n = 1:m_num
@@ -539,7 +540,7 @@ for n = 1:m_num
     end
 end
 
-%declaration of global variables
+%Declaration of global variables
 global forceL
 global nodes  
 global member
@@ -549,8 +550,7 @@ global numMems
 %number of members connected to each node
 member = [2, 3, 4, 4, 4, 4, 4, 4, 3, 2];
 
-%this is the connection of members for the nodes
-%has to be square matrix
+%this is the connection of members for the nodes, 
 conn = [1, 2, 0, 0;
     1, 3, 4, 0;
     2, 3, 5, 6;
@@ -567,6 +567,7 @@ nodes = 10;
 
 %end of test data
 
+%------------- Start Failure Calculations
 %finds the largest force in each pin
 for n = 1:nodes
     %this is used to store the number of members attached to the pin with 
@@ -574,10 +575,11 @@ for n = 1:nodes
     if (n == 1) 
         numMems = 1;
     end
-    %stores the first x and y components
+    %stores the first x and y components of the largest force 
     largestx = Fe(conn(n, 1))*cosd(theata(conn(n, 1)));
     largesty = Fe(conn(n, 1))*sind(theata(conn(n, 1)));
-    %counts from 2 to the number or members left and finds those components
+    
+    %counts from 2 to the number of members left and finds those components
     for x = 2:member(n)
         xCurr = Fe(conn(n, x))*cosd(theata(conn(n, x)));
         yCurr = Fe(conn(n, x))*sind(theata(conn(n, x)));
