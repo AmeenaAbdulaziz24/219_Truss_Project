@@ -5,8 +5,8 @@
 clear all, clc;
 
 % Knowns
-mass = 1.75; % Max mass without failure (at 1.76 tear out in member 2)
-P = (mass*9.81); %Converting the mass into a Force in N
+mass = 1.09; % Max mass without failure (at 1.09 in member 6)
+P = (mass*(-9.81)); %Converting the mass into a Force in N
 E = 10.932*10^9; % Modulus of Elasticity in Pa
 A = 0.6 * (1/16)*(0.0254^2); % Cross Section of the Truss, Converted from inches squared to meters squared
 %geometry of %the single trusses used (should all be constant cross sections)
@@ -225,36 +225,18 @@ F = K * U;
 
 fe1 = k(1) * ((U(3)-U(1))*C(1) + (U(4)-U(2))*S(1));
 fe2 = k(2) * ((U(5)-U(3))*C(2) + (U(6)-U(4))*S(2));
-fe3 = k(3) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
-
-fe4 = k(4) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
-fe5 = k(5) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
-fe6 = k(6) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
-fe7 = k(7) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
-fe8 = k(8) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
-fe9 = k(9) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
-fe10 = k(10) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
-fe11 = k(11) * ((U(5)-U(2))*C(3) + (U(6)-U(1))*S(3));
+fe3 = k(3) * ((U(1)-U(5))*C(3) + (U(2)-U(6))*S(3));
+fe4 = k(4) * ((U(7)-U(1))*C(4) + (U(8)-U(2))*S(4));
+fe5 = k(5) * ((U(7)-U(5))*C(5) + (U(8)-U(6))*S(5));
+fe6 = k(6) * ((U(9)-U(5))*C(6) + (U(10)-U(6))*S(6));
+fe7 = k(7) * ((U(7)-U(9))*C(7) + (U(8)-U(10))*S(7));
+fe8 = k(8) * ((U(11)-U(7))*C(8) + (U(12)-U(8))*S(8));
+fe9 = k(9) * ((U(11)-U(9))*C(9) + (U(12)-U(10))*S(9));
+fe10 = k(10) * ((U(13)-U(9))*C(10) + (U(14)-U(10))*S(10));
+fe11 = k(11) * ((U(11)-U(13))*C(11) + (U(12)-U(14))*S(11));
 
 Fe = [fe1;fe2;fe3;fe4;fe5;fe6;fe7;fe8;fe9;fe10;fe11];
 
-%Format and print results
-% fprintf('Nodal Displacements:\n');
-% j = 1;
-% for i = 1:2:length(U)
-%     fprintf('u%ix = %.3f P/EA\n', j, U(i));
-%     fprintf('u%iy = %.3f P/EA\n', j, U(i+1));
-%     j = j+1;
-% end
-% 
-% fprintf('\nNodal Forces:\n');
-% j = 1;
-% for i = 1:2:length(F)
-%     fprintf('f%ix = %.3f P\n', j, F(i));
-%     fprintf('f%iy = %.3f P\n', j, F(i+1));
-%     j = j+1;
-% end
-% 
 % fprintf('\nMember Forces:\n');
 % for i = 1:length(Fe)
 %     fprintf('f(%i) = %.3f P\n', i, Fe(i));
@@ -323,16 +305,25 @@ if (tearout(T_max, t, b, S_m))
 end
 
 %print which members failed from buckling
-if (buckling(C_max, E, I, L_c))
-    fprintf('Buckling failure:\n');
-    for n = 1:m_num
-        if((Fe(n) < 0) && buckling(Fe(n), E, I, L(n)))
-            fprintf('Member %i\n', n);
+% if (buckling(C_max, E, I, L_c))
+%     fprintf('Buckling failure:\n');
+%     for n = 1:m_num
+%         if((Fe(n) < 0) && buckling(Fe(n), E, I, L(n)))
+%             fprintf('Member %i\n', n);
+%         end
+%     end
+% end
+
+buckle_label = 0; %stores whether "Buckling failure:" has been printed
+for n = 1:m_num
+    if((Fe(n) < 0) && buckling(Fe(n), E, I, L(n)))
+        if (buckle_label == 0)
+            buckle_label = 1;
+            fprintf('Buckling failure:\n');
         end
+        fprintf('Member %i\n', n);
     end
 end
-
-
 
 %declaration of global variables
 global forceL
